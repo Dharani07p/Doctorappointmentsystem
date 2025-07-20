@@ -1,0 +1,56 @@
+<!-- frontend/doctors.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctors</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Doctors</h1>
+
+    <div>
+        <input type="text" id="doctorName" placeholder="Doctor Name">
+        <input type="text" id="specialization" placeholder="Specialization">
+        <button onclick="addDoctor()">Add Doctor</button>
+    </div>
+
+    <h2>All Doctors</h2>
+    <ul id="doctorList"></ul>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/doctors';
+
+        function loadDoctors() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("doctorList");
+                    list.innerHTML = "";
+                    data.forEach(doc => {
+                        const li = document.createElement("li");
+                        li.textContent = `${doc.name} - ${doc.specialization}`;
+                        list.appendChild(li);
+                    });
+                });
+        }
+
+        function addDoctor() {
+            const name = document.getElementById("doctorName").value;
+            const specialization = document.getElementById("specialization").value;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, specialization })
+            }).then(() => {
+                loadDoctors();
+                document.getElementById("doctorName").value = "";
+                document.getElementById("specialization").value = "";
+            });
+        }
+
+        loadDoctors();
+    </script>
+</body>
+</html>

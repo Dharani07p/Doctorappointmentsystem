@@ -1,0 +1,56 @@
+<!-- frontend/patients.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patients</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Patients</h1>
+
+    <div>
+        <input type="text" id="patientName" placeholder="Patient Name">
+        <input type="text" id="patientPhone" placeholder="Phone Number">
+        <button onclick="addPatient()">Add Patient</button>
+    </div>
+
+    <h2>All Patients</h2>
+    <ul id="patientList"></ul>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/patients';
+
+        function loadPatients() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("patientList");
+                    list.innerHTML = "";
+                    data.forEach(patient => {
+                        const li = document.createElement("li");
+                        li.textContent = `${patient.name} - ${patient.phone}`;
+                        list.appendChild(li);
+                    });
+                });
+        }
+
+        function addPatient() {
+            const name = document.getElementById("patientName").value;
+            const phone = document.getElementById("patientPhone").value;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, phone })
+            }).then(() => {
+                loadPatients();
+                document.getElementById("patientName").value = "";
+                document.getElementById("patientPhone").value = "";
+            });
+        }
+
+        loadPatients();
+    </script>
+</body>
+</html>

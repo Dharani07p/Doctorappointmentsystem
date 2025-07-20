@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Appointments</h1>
+
+    <div>
+        <label>Date/Time:</label>
+        <input type="datetime-local" id="appointmentTime"><br>
+
+        <label>Doctor ID:</label>
+        <input type="number" id="doctorId"><br>
+
+        <label>Patient ID:</label>
+        <input type="number" id="patientId"><br>
+
+        <button onclick="addAppointment()">Add Appointment</button>
+    </div>
+
+    <h2>All Appointments</h2>
+    <ul id="appointmentList"></ul>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/appointments';
+
+        function loadAppointments() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("appointmentList");
+                    list.innerHTML = "";
+                    data.forEach(a => {
+                        const li = document.createElement("li");
+                        li.textContent = `Appointment at ${a.appointmentTime} with Doctor #${a.doctor.id} and Patient #${a.patient.id}`;
+                        list.appendChild(li);
+                    });
+                });
+        }
+
+        function addAppointment() {
+            const time = document.getElementById("appointmentTime").value;
+            const doctorId = document.getElementById("doctorId").value;
+            const patientId = document.getElementById("patientId").value;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    appointmentTime: time,
+                    doctor: { id: doctorId },
+                    patient: { id: patientId }
+                })
+            }).then(() => {
+                loadAppointments();
+                document.getElementById("appointmentTime").value = "";
+                document.getElementById("doctorId").value = "";
+                document.getElementById("patientId").value = "";
+            });
+        }
+
+        loadAppointments();
+    </script>
+</body>
+</html>
